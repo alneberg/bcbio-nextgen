@@ -105,8 +105,8 @@ managed by LSF or SGE using `IPython parallel`_, or on the Amazon cloud.
 `This tutorial`_ describes running the pipeline on Amazon with
 `CloudBioLinux`_ and `CloudMan`_.
 
-Galaxy integration
-~~~~~~~~~~~~~~~~~~
+LIMS integration
+~~~~~~~~~~~~~~~~
 
 The scripts can be tightly integrated with the `Galaxy`_ web-based
 analysis tool. Tracking of samples occurs via a web based LIMS system,
@@ -114,6 +114,12 @@ and processed results are uploading into Galaxy Data Libraries for
 researcher access and additional analysis. See the `installation
 instructions for the front end`_ and a `detailed description of the full
 system`_.
+
+Alternatively, there is also preliminary Genologics(tm) LIMS support, currently
+under development. A ``lims_url`` should be provided in the configuration *and*
+a ``.genologicsrc`` config file with credentials should be present in the
+user's ``$HOME`` directory, as explained in `scilifelab genologics python
+package`.
 
 .. _system configuration file: https://github.com/chapmanb/bcbio-nextgen/blob/master/config/bcbio_system.yaml
 .. _sample configuration file: https://github.com/chapmanb/bcbio-nextgen/blob/master/config/bcbio_sample.yaml
@@ -139,6 +145,7 @@ system`_.
 .. _novoalign: http://www.novocraft.com
 .. _gkno pipelines: http://gkno.me/pipelines.html
 .. _GEMINI: http://gemini.readthedocs.org/en/latest/
+.. _scilifelab genologics python package: http://github.com/SciLifeLab/genologics
 
 Contributors
 ------------
