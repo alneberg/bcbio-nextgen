@@ -1,15 +1,14 @@
-"""Access Galaxy NGLIMS functionality via the standard API.
+"""Access LIMS functionality via diffent APIs (Galaxy and Genologics LIMS).
 """
 import urllib
 import urllib2
 import json
 import time
 
-class GalaxyApiAccess:
-    """Simple front end for accessing Galaxy's REST API.
+class ApiAccess(object):
+    """ Generic base class for REST API methods
     """
     def __init__(self, galaxy_url, api_key):
-        self._base_url = galaxy_url
         self._key = api_key
         self._max_tries = 5
 
@@ -28,7 +27,7 @@ class GalaxyApiAccess:
             try:
                 out = json.loads(response.read())
                 break
-            except ValueError, msg:
+            except ValueError:
                 if num_tries > self._max_tries:
                     raise
                 time.sleep(3)
@@ -50,6 +49,33 @@ class GalaxyApiAccess:
                 data = {}
         return data
 
+class GenologicsApiAccess(ApiAccess):
+    """Access commercial Genologics LIMS REST API via genologics python module
+    """
+    super(ApiAccess)
+
+    def __init__(self):
+        try:
+            from genologics.lims import *
+        except ImportError:
+            raise ImportError("Genologics python module not installed, please run 'pip install genologics'")
+
+        from genologics.config import BASEURI, USERNAME, PASSWORD
+        lims = Lims(BASEURI, USERNAME, PASSWORD)
+        lims.check_version()
+
+    def get_projects(self):
+        return lims.get_projects()
+
+
+class GalaxyApiAccess(ApiAccess):
+    """Simple front end for accessing Galaxy's REST API.
+    """
+    super(ApiAccess)
+
+    def __init__(self, galaxy_url, api_key):
+        self._base_url = galaxy_url
+
     def run_details(self, run_bc, run_date=None):
         """Next Gen LIMS specific API functionality.
         """
@@ -57,7 +83,7 @@ class GalaxyApiAccess:
             details = self._get("/nglims/api_run_details", dict(run=run_bc))
         except ValueError:
             raise ValueError("Could not find information in Galaxy for run: %s" % run_bc)
-        if details.has_key("error") and run_date is not None:
+        if "error" in details and run_date is not None:
             try:
                 details = self._get("/nglims/api_run_details", dict(run=run_date))
             except ValueError:
@@ -72,12 +98,10 @@ class GalaxyApiAccess:
     def sqn_run_summary(self, run_info):
         """Next Gen LIMS: Upload sequencing run summary information.
         """
-        return self._post("/nglims/api_upload_sqn_run_summary",
-                data=run_info)
+        return self._post("/nglims/api_upload_sqn_run_summary", data=run_info)
 
     def sqn_report(self, start_date, end_date):
         """Next Gen LIMS: report of items sequenced in a time period.
         """
         return self._get("/nglims/api_sqn_report",
                 dict(start=start_date, end=end_date))
-
