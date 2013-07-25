@@ -24,10 +24,17 @@ def get_run_info(fc_dir, config, run_info_yaml):
         logger.info("Found YAML samplesheet, using %s instead of Galaxy API" % run_info_yaml)
         fc_name, fc_date, run_info = _run_info_from_yaml(fc_dir, run_info_yaml, config)
     else:
-        logger.info("Fetching run details from Galaxy instance")
-        fc_name, fc_date = get_flowcell_info(fc_dir)
-        galaxy_api = GalaxyApiAccess(config['galaxy_url'], config['galaxy_api_key'])
-        run_info = galaxy_api.run_details(fc_name, fc_date)
+        if config['galaxy_url'] is not None:
+            logger.info("Fetching run details from Galaxy instance")
+            fc_name, fc_date = get_flowcell_info(fc_dir)
+            galaxy_api = GalaxyApiAccess(config['galaxy_url'], config['galaxy_api_key'])
+            run_info = galaxy_api.run_details(fc_name, fc_date)
+        elif config['lims_url'] is not None:
+            logger.info("Fetching run details from Genologics LIMS")
+            fc_name, fc_date = get_flowcell_info(fc_dir)
+            api = GenologicsApiAccess(config['lims_url'])
+            run_info = api.run_details(fc_name, fc_date)
+
     return fc_name, fc_date, _organize_runs_by_lane(run_info)
 
 def _organize_runs_by_lane(run_info):

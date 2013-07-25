@@ -52,8 +52,6 @@ class ApiAccess(object):
 class GenologicsApiAccess(ApiAccess):
     """Access commercial Genologics LIMS REST API via genologics python module
     """
-    super(ApiAccess)
-
     def __init__(self):
         try:
             from genologics.lims import *
@@ -63,6 +61,11 @@ class GenologicsApiAccess(ApiAccess):
         from genologics.config import BASEURI, USERNAME, PASSWORD
         lims = Lims(BASEURI, USERNAME, PASSWORD)
         lims.check_version()
+
+    def run_details(self, run_bc, run_date=None):
+        """Get run details from the LIMS API that the pipeline can use.
+        """
+        raise NotImplemented("#XXX: Transform the returned data from Brad's nglims")
 
     def get_projects(self):
         return lims.get_projects()
